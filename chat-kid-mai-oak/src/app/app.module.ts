@@ -33,6 +33,9 @@ import { CreateGroupComponent } from './create-group/create-group.component';
     ScrollDispatchModule
 
   ],
+  entryComponents: [
+    CreateGroupComponent
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })

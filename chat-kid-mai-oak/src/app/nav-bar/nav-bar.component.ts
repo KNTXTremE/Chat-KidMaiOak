@@ -32,8 +32,8 @@ export class NavBarComponent implements OnInit {
 
   openReportDialog(): void {
     this.dialog.open(CreateGroupComponent, {
-      width: '450px',
-      height: '600px',
+      width: '400px',
+      height: '220px',
       data: {
         name: this.name
       }
