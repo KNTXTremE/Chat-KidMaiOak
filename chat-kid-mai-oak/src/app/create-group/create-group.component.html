@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>Create Group</h1>
+<div mat-dialog-content class="content">
+  Name
+  <input [(ngModel)]="data.name">
+</div>
+<div mat-dialog-actions class="action">
+    <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-button (click)="submit()" class="submit">OK</button>
+</div>

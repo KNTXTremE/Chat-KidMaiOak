@@ -1,0 +1,9 @@
+<div class="navbar-container">
+    <button mat-raised-button class="createGroup" (click)="openReportDialog()">
+      <i class="material-icons">add</i>Create Group
+    </button>
+    <p>Joined Group</p>
+    <button mat-button class="name" *ngFor="let name of joinedGroup" (click)="letChat(name)">{{name}}</button>
+    <p>All Group</p>
+    <button mat-button class="name" *ngFor="let name of allGroup" (click)="letChat(name)">{{name}}</button>
+</div>
