@@ -20,7 +20,7 @@ export class SignInComponent implements OnInit {
 
   signIn(): void {
     console.log(this.username, this.password);
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
 
 }
