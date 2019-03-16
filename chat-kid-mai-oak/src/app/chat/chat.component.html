@@ -1,0 +1,30 @@
+<div class="container">
+  <div *ngIf="!groupName" class="notSelectGroup">
+    <h1>Welcome to Kid-Mai-Oak</h1>
+    <h4>please select your group. Let's chat!</h4>
+  </div>
+  <div *ngIf="groupName" class="chatTemplate">
+    <div class="header">
+      <div class="group">Group: {{groupName}}</div>
+      <button mat-raised-button [ngClass]="{ 'leaveGroup' : !isJoined}" (click)="leaveGroup()">Leave Group</button>
+    </div>
+    <div *ngIf="!isJoined" class="letJoin">
+      <button mat-raised-button class="joinGroup" (click)="joinGroup()">Join Group</button>
+    </div>
+    <div *ngIf="isJoined">
+      <cdk-virtual-scroll-viewport itemSize="50" class="example-viewport">
+        <div *cdkVirtualFor="let message of messageChat" class="example-item">
+            <div class="chat">
+                <span class="username">{{message.user}}</span>
+                <div class="messageChat">{{message.message}}}</div>
+                <span class="time">{{message.time}} </span>
+              </div>
+        </div>
+      </cdk-virtual-scroll-viewport>
+      <div class="message">
+        <input type="text" [(ngModel)]="message">
+        <button mat-raised-button class="sent">Sent</button>
+      </div>
+    </div>
+  </div>
+</div>
