@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 export class SignInComponent implements OnInit {
 
   username: string;
-  password: string;
 
   constructor(
     private router: Router,
@@ -19,7 +18,6 @@ export class SignInComponent implements OnInit {
   }
 
   signIn(): void {
-    console.log(this.username, this.password);
     this.router.navigate(['/home']);
   }
 
