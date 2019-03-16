@@ -28,6 +28,12 @@ export class ChatComponent implements OnInit {
     this.messageChat = [ { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.24pm'},
     { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
     { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
+    { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
+    { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
+    { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
+    { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
+    { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
+    { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
     { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'}];
   }
 
@@ -37,5 +43,9 @@ export class ChatComponent implements OnInit {
 
   leaveGroup() {
     this.isJoined = false;
+  }
+
+  sentMessage() {
+    this.message = '';
   }
 }

@@ -23,7 +23,7 @@
       </cdk-virtual-scroll-viewport>
       <div class="message">
         <input type="text" [(ngModel)]="message">
-        <button mat-raised-button class="sent">Sent</button>
+        <button mat-raised-button class="sent" (click)="sentMessage()">Sent</button>
       </div>
     </div>
   </div>
