@@ -3,7 +3,6 @@ use parallel;
 create table chat_user(
 	user_id int auto_increment,
     user_name varchar(30) not null,
-    user_password varchar(30) not null,
     primary key (user_id)
     );
 create table chat_group(
