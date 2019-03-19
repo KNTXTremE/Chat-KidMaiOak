@@ -20,7 +20,7 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-// add group from database to groups variable
+// TODO: add group from database to groups variable
 groups = ['g1', 'g2']
 
 io.on('connection', function (socket) {
@@ -120,6 +120,7 @@ io.on('connection', function (socket) {
     if (author) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
       //TODO: check with database if user join msg.group 
+      //TODO: edit emit -> {name:name,msg:msg.txt}
       io.to(msg.group).emit('chat message', name + ' : ' + msg.text);
       //TODO: save message to data base
       //TODO: update last message time to database
