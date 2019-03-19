@@ -56,8 +56,8 @@
     $(function () {
       var num = 0;
       var socket = io();
-      let name = prompt("Please enter your name:", "Harry Potter");
-      user = { name: name, password: '1234' }
+      let name = prompt("Please enter your name:", "punsa");
+      user = { name: name, password: '1234567890' }
       socket.emit('login', user)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
