@@ -68,34 +68,30 @@ io.on('connection', function (socket) {
     }
   });
   socket.on('exit group', function (group) {
-    // TODO: save to data base
-    // send timestamp to database
-    //console.log(currentTimestamp);
     try{
-      let result = await query('SELECT join_group.join_user_id FROM join_group JOIN chat_user WHERE join_group.join_user_id = chat_user.user_id AND chat_user.user_name=?; \
+      let result = query('SELECT join_group.join_user_id FROM join_group JOIN chat_user WHERE join_group.join_user_id = chat_user.user_id AND chat_user.user_name=?; \
       SELECT join_group.join_group_id FROM join_group JOIN chat_group WHERE join_group.join_group_id = chat_group.group_id AND chat_group.group_name=?; \
       UPDATE join_group SET is_exist=0,latest_time_read=current_timestamp() WHERE join_user_id=? AND join_group_id=?;', [group.user_name, group.group_name, group.user_id, group.group_id]);
   
-      console.log('exit group')
+      // console.log('exit group')
+      // console.log(group)
     } catch(e){
       console.log(e);
     }
 
   });
   socket.on('unexit group', function (group) {
-    // TODO: save to data base
-    // username = 'MisterA';
-    // msg = 'test2'; //Get all unread message from database (with username, timestamp)
-    // chatTimestamp = 0; //Test only, don't forget to change to latest read chat timstamp
+    // console.log(group.group_id)
+    
     try{
-      let result = await query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
+      let result = query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
       FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
       WHERE chat_log.time_sent >= (SELECT latest_time_read \
       FROM join_group \
       WHERE join_user_id=? AND join_group_id=?);', [group.user_id, group.group_id]);
   
       // socket.emit('unexit group', [{ 'username': username, 'message': msg, 'timestamp': chatTimestamp }]);
-      socket.emit('unexit group', result);
+      socket.emit('chat message', result);
     } catch(e){
       console.log(e);
     }
@@ -114,6 +110,10 @@ io.on('connection', function (socket) {
     author = false
     console.log('user: ' + name + ' has disconnected.');
   });
+
+  socket.on('createGroup', async (data, callback) => {
+    console.log("Created group")
+  })
 });
 
 http.listen(port, function () {
@@ -123,10 +123,10 @@ http.listen(port, function () {
 function query(sql, params) {
   connection.query(
     sql, params, (error, result) => {
-      if (error) rej(error);
+      if (error) throw error;
 
       //let all = JSON.parse(JSON.stringify(result));
-      // console.log(result);
+      console.log(result);
     }
   );
 }
