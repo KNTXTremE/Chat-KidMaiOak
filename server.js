@@ -34,24 +34,18 @@ io.on('connection', function (socket) {
   var name;
   var author = false;
   console.log('connection');
-  socket.on('login', function (user) {
-<<<<<<< HEAD
-    console.log(user)
-    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[user],function(err,row){
-
-      if(row.length == 1){
-        name = user;
-=======
-    connection.query('SELECT * FROM chat_user WHERE user_name = ?;', [user.name], function (err, row) {
+  socket.on('login', function (username) {
+    console.log(username)
+    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[username],function(err,row){
       console.log(row)
-      if (row.length == 1) {
-        name = user.name;
->>>>>>> 8c7db416e3e0a99b6a3389b5b242fd342cb9a814
-        console.log('user: ' + name + ' has connected.');
-        socket.emit('group list', groups);
-        author = true;
+      if(row.length == 0){
+        connection.query('insert into chat_user(user_name) values (?);', username);
+        console.log('user: ' + username + ' has registered.');
       }
-      console.log(row)
+      name = username;
+      console.log('user: ' + name + ' has connected.');
+      socket.emit('group list', groups);
+      author = true;
     })
   });
   socket.on('create group', function (group) {
@@ -79,7 +73,6 @@ io.on('connection', function (socket) {
           }
           else {
             console.log('already join')
-            socket.join(group)
           }
         })
       }
