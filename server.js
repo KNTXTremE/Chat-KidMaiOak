@@ -4,10 +4,12 @@ var io = require('socket.io')(http);
 var port = 8080;
 
 var mysql = require("mysql");
+
+config = require('./config.js');
 var connection = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "root",
+  user: config.database.user,
+  password: config.database.password,
   database: "parallel",
   port: "3306",
   dateStrings: true
