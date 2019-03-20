@@ -27,7 +27,6 @@ SELECT join_group.join_group_id FROM join_group JOIN chat_group WHERE join_group
 SELECT chat_group.group_name FROM chat_group JOIN join_group ON chat_group.group_id = join_group.join_group_id WHERE join_group.join_user_id=?;
 
 #getAllGroup
-SELECT group_name FROM (chat_group JOIN join_group ON chat_group.chat_group_id = join_group.join_group_id) JOIN chat_user WHERE chat_user.chat_user_id=?;
 SELECT group_name FROM chat_group;
 
 #sendMessage
