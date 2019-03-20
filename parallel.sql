@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS parallel;
+
 create database parallel;
 use parallel;
 create table chat_user(
