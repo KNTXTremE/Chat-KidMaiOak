@@ -22,14 +22,20 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-// TODO: add group from database to groups variable
 groups = ['g1', 'g2']
+
+connection.query('SELECT group_name FROM chat_group;',function(err,row){
+  for(i=0;i<row.length;i++){
+    groups.push(row[i].group_name)
+  }
+})
 
 io.on('connection', function (socket) {
   var name;
   var author = false;
   socket.on('login', function (user) {
-    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[name],function(err,row){
+    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[user.name],function(err,row){
+      console.log(row)
       if(row.length == 1){
         name = user.name;
         console.log('user: ' + name + ' has connected.');
@@ -40,38 +46,33 @@ io.on('connection', function (socket) {
   });
   socket.on('create group', function (group) {
     if (author) {
-      // console.log(group)
       if (groups.indexOf(group) < 0) {
         // if group not in groups
-        groups.push(group)
-        io.emit('new group', group)
-        console.log('user : ' + name + ' create new group ,' + group)
-        // TODO: save to data base
-        
-        try{
-          let result = query('INSERT INTO chat_group(group_name) VALUES(?);', group, '', 0);
-          console.log(result)
-          // console.log(result)
-        } catch (e){
-          console.log(e);
-        }
+        connection.query('INSERT INTO chat_group(group_name) VALUES(?);', [group], function(err,row){
+          groups.push(group)
+          io.emit('new group', group)
+          console.log('user : ' + name + ' create new group ,' + group)
+        });
       }
 
     }
   });
   socket.on('join group', function (group) {
     if (author) {
-      if (groups.indexOf(group.group_name) >= 0) {
+      if (groups.indexOf(group) >= 0) {
         // if group in groups
-        socket.join(group.group_name)
-        console.log('user : ' + name + ' join group ,' + group.group_name)
-        // TODO: save to data base
-        console.log(group.group_name)
-        try{
-          let result = query('INSERT INTO join_group(join_user_id,join_group_id,is_exist,latest_time_read) VALUES (?,?,1,current_timestamp());', [group.user_id, group.group_id], '', 0);
-        } catch (e){
-          console.log(e);
-        }
+        connection.query('select * from join_group,chat_group,chat_user where join_user_id = user_id and group_id = join_group_id and group_name = ? and user_name = ?;',[group,name],function(err,row){
+          if(row.length === 0){
+            connection.query('INSERT INTO join_group(join_user_id,join_group_id,is_exist,latest_time_read) VALUES ((SELECT user_id from chat_user where user_name = ?),(SELECT group_id from chat_group where group_name = ?),1,current_timestamp());',[name, group],function(err,row){
+              socket.join(group)
+              console.log('user : ' + name + ' join group ,' + group)  
+            })    
+          }
+          else{
+            console.log('alredy join')
+          }
+        })
+        
       }
 
     }
@@ -80,16 +81,17 @@ io.on('connection', function (socket) {
     if (author) {
       if (groups.indexOf(group) >= 0) {
         // if group in groups
-        socket.leave(group)
-        console.log('user : ' + name + ' leave group ,' + group)
-      }
-      // TODO: save to data base
-      try{
-        let result = query('SELECT join_group.join_user_id FROM join_group JOIN chat_user WHERE join_group.join_user_id = chat_user.user_id AND chat_user.user_name=?; \
-        SELECT join_group.join_group_id FROM join_group JOIN chat_group WHERE join_group.join_group_id = chat_group.group_id AND chat_group.group_name=?; \
-        DELETE FROM join_group WHERE join_user_id=? AND join_group_id=?;', [group.user_name, group.group_name, group.user_id, group.group_id], 'left group list', 1);
-      } catch (e){
-        console.log(e);
+        connection.query('select * from join_group,chat_group,chat_user where join_user_id = user_id and group_id = join_group_id and group_name = ? and user_name = ?;',[group,name],function(err,row){
+          if(row.length === 0){
+            console.log('not alredy join')  
+          }
+          else{
+            connection.query('DELETE FROM join_group WHERE join_user_id=(SELECT user_id from chat_user where user_name = ?) AND join_group_id=(SELECT group_id from chat_group where group_name = ?);',[name, group],function(err,row){
+              socket.leave(group)
+              console.log('user : ' + name + ' leave group ,' + group)  
+            })
+          }
+        })
       }
     }
   });
