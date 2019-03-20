@@ -24,7 +24,6 @@ export class SignInComponent implements OnInit {
   signIn(): void {
     this.chat.setUser(this.username);
     this.socket.emit('login', this.username);
-    console.log('hello');
     this.router.navigate(['/']);
   }
 

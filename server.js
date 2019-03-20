@@ -22,7 +22,7 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-groups = ['g1', 'g2']
+groups = []
 
 connection.query('SELECT group_name FROM chat_group;',function(err,row){
   for(i=0;i<row.length;i++){
@@ -33,15 +33,18 @@ connection.query('SELECT group_name FROM chat_group;',function(err,row){
 io.on('connection', function (socket) {
   var name;
   var author = false;
+  console.log('connection');
   socket.on('login', function (user) {
-    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[user.name],function(err,row){
-      console.log(row)
+    console.log(user)
+    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[user],function(err,row){
+
       if(row.length == 1){
-        name = user.name;
+        name = user;
         console.log('user: ' + name + ' has connected.');
         socket.emit('group list', groups);
         author = true;
       }
+      console.log(row)
     })
   });
   socket.on('create group', function (group) {
