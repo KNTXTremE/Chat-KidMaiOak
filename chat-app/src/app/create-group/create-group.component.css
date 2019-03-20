@@ -14,6 +14,7 @@ input {
   margin-left: 16px;
   height: 36px;
   width: 250px;
+  padding: 0px 8px;
 }
 
 .action {

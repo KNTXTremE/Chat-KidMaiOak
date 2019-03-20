@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Socket } from 'ngx-socket-io';
+import { ChatService } from '../chat.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -12,13 +14,17 @@ export class SignInComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private socket: Socket,
+    private chat: ChatService,
   ) { }
 
   ngOnInit() {
   }
 
   signIn(): void {
-    this.router.navigate(['/home']);
+    this.chat.setUser(this.username);
+    this.socket.emit('login', this.username);
+    this.router.navigate(['/']);
   }
 
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateGroupComponent } from '../create-group/create-group.component';
+import { ChatService } from '../chat.service';
 
 export interface DialogData {
   name: string;
@@ -13,17 +14,23 @@ export interface DialogData {
 })
 export class NavBarComponent implements OnInit {
 
-  joinedGroup: string[] = ['CP43', 'KidMaiOak', 'Parallel'];
-  allGroup: string[] = ['CP43', 'KidMaiOak', 'Parallel', 'ABCD', 'Sky Cafe'];
+  groupList: Array<String> = [];
   @Output() groupName = new EventEmitter<string>();
   name: string;
 
 
-  constructor(private dialog: MatDialog) {
-   }
+  constructor(
+    private dialog: MatDialog,
+    private chat: ChatService,
+  ) {}
 
 
   ngOnInit() {
+    this.groupList = this.getGroupList();
+  }
+
+  getGroupList(): Array<String> {
+    return this.chat.getGroupList();
   }
 
   letChat(group: string): void {

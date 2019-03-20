@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Socket } from 'ngx-socket-io';
 
 export interface MessageChat {
   message: string;
@@ -19,7 +20,9 @@ export class ChatComponent implements OnInit {
   messageChat: MessageChat[];
 
 
-  constructor() { }
+  constructor(
+    private socket: Socket,
+  ) { }
 
   ngOnInit() {
     if (this.groupName == null) {
@@ -39,6 +42,8 @@ export class ChatComponent implements OnInit {
 
   joinGroup() {
     this.isJoined = true;
+    this.socket.emit('join group', this.groupName);
+
   }
 
   leaveGroup() {

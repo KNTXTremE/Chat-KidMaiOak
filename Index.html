@@ -57,8 +57,7 @@
       var num = 0;
       var socket = io();
       let name = prompt("Please enter your name:", "punsa");
-      let id = prompt("Please enter your id:", "1");
-      user = { id: id, name: name, password: '1234567890' }
+      user = { name: name, password: '1234567890' }
       socket.emit('login', user)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
@@ -92,14 +91,17 @@
       });
       $('#exitGroup').submit(function (e) {
         e.preventDefault();
-        socket.emit('exit group', { user_name: name, group_name: 'g1', user_id: user.id, group_id: 1});
+        socket.emit('exit group', 'g1');
       });
       $('#unexitGroup').submit(function (e) {
         e.preventDefault();
-        socket.emit('unexit group', { user_id: name, group_id: num % 2 + 1 });
+        socket.emit('unexit group', 'g1');
       });
       socket.on('chat message', function (msg) {
         $('#messages').append($('<li>').text(msg));
+      });
+      socket.on('get unread chat', function (msg) {
+        $('#messages').append($('<li>').text(msg.user_name + " : " + msg.message));
       });
       socket.on('new group', function (group) {
         $('#glist').append($('<li>').text(group))
@@ -143,7 +145,7 @@
     <button>leave g2</button>
   </form>
   <form id="unexitGroup" action="">
-    <button>enter group</button>
+    <button>enter group g1</button>
   </form>
   <form id="exitGroup" action="">
     <button>exit group</button>

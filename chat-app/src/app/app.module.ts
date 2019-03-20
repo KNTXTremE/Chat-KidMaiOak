@@ -13,6 +13,9 @@ import { ChatComponent } from './chat/chat.component';
 import { SignInComponent } from './sign-in/sign-in.component';
 import { HomeComponent } from './home/home.component';
 import { CreateGroupComponent } from './create-group/create-group.component';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+
+const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
 
 @NgModule({
   declarations: [
@@ -30,7 +33,8 @@ import { CreateGroupComponent } from './create-group/create-group.component';
     FormsModule,
     BrowserAnimationsModule,
     MatDialogModule,
-    ScrollDispatchModule
+    ScrollDispatchModule,
+    SocketIoModule.forRoot(config)
 
   ],
   entryComponents: [

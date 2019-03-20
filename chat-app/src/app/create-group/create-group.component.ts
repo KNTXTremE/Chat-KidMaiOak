@@ -1,5 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ChatService } from '../chat.service';
+import { Socket } from 'ngx-socket-io';
 
 interface DialogData {
   name: string;
@@ -13,7 +15,9 @@ interface DialogData {
 export class CreateGroupComponent implements OnInit {
 
   constructor(private dialogRef: MatDialogRef<CreateGroupComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData) { }
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private chat: ChatService,
+    private socket: Socket) { }
 
   ngOnInit() {
   }
@@ -23,6 +27,7 @@ export class CreateGroupComponent implements OnInit {
   }
 
   submit() {
+    this.socket.emit('create group', this.data.name);
     this.dialogRef.close();
   }
 
