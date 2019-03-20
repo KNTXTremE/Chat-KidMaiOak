@@ -39,3 +39,4 @@ insert into chat_user values (NULL,'ongeiei');
 insert into chat_user values (NULL,'gungun');
 insert into chat_user values (NULL,'zizizi');
 insert into chat_group values (NULL,'g1');
+insert into chat_group values (NULL,'g2');
