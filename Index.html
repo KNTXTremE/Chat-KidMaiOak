@@ -57,13 +57,14 @@
       var num = 0;
       var socket = io();
       let name = prompt("Please enter your name:", "punsa");
-      user = { name: name, password: '1234567890' }
+      let id = prompt("Please enter your id:", "1");
+      user = { id: id, name: name, password: '1234567890' }
       socket.emit('login', user)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
         if (num % 2 == 0) socket.emit('chat message', { text: $('#m').val(), group: 'g1' });
         if (num % 2 == 1) socket.emit('chat message', { text: $('#m').val(), group: 'g2' });
-        num++;
+        // num++;
         $('#b').html('Send to g' + (num % 2 + 1));
         $('#m').val('');
         return false;
@@ -75,11 +76,11 @@
       });
       $('#joing1').submit(function (e) {
         e.preventDefault();
-        socket.emit('join group', 'g1');
+        socket.emit('join group', {user_id: user.id, group_name: 'g1', group_id: 1});
       });
       $('#joing2').submit(function (e) {
         e.preventDefault();
-        socket.emit('join group', 'g2');
+        socket.emit('join group', {user_id: 1, group_name: 'g2', group_id: 2});
       });
       $('#leaveg1').submit(function (e) {
         e.preventDefault();
@@ -91,7 +92,7 @@
       });
       $('#exitGroup').submit(function (e) {
         e.preventDefault();
-        socket.emit('exit group', { user_name: name, group_name: 'g' + (num % 2 + 1), user_id: 1, group_id: num % 2 + 1 });
+        socket.emit('exit group', { user_name: name, group_name: 'g1', user_id: user.id, group_id: 1});
       });
       $('#unexitGroup').submit(function (e) {
         e.preventDefault();
@@ -107,6 +108,15 @@
         for (let i = 0; i < groups.length; i++) {
           $('#glist').append($('<li>').text(groups[i]))
         }
+      });
+      socket.on('left group list', function (data) {
+        console.log(data)
+      });
+      socket.on('exit group list', function (data) {
+        console.log(data)
+      });
+      socket.on('unexit group list', function (data) {
+        console.log(data)
       });
     });
   </script>
