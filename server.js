@@ -6,7 +6,7 @@ var port = 8080;
 var mysql = require("mysql");
 
 config = require('./config.js');
-var connectionPool = mysql.createPool({
+var connection = mysql.createConnection({
   host: "localhost",
   user: config.database.user,
   password: config.database.password,
@@ -29,11 +29,14 @@ io.on('connection', function (socket) {
   var name;
   var author = false;
   socket.on('login', function (user) {
-    //TODO: check user,password with data base
-    name = user.name;
-    author = true;
-    console.log('user: ' + name + ' has connected.');
-    socket.emit('group list', groups);
+    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[name],function(err,row){
+      if(row.length == 1){
+        name = user.name;
+        console.log('user: ' + name + ' has connected.');
+        socket.emit('group list', groups);
+        author = true;
+      }
+    })
   });
   socket.on('create group', function (group) {
     if (author) {
