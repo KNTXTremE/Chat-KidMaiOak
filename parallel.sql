@@ -29,6 +29,13 @@ create table chat(
 	chat_user_id int references chat_user(user_id),
     chat_group_id int references chat_group(group_id),
     chat_chat_id int references chat_log(chat_id),
-    sequence_number int auto_increment,
+    sequence_number int,
     primary key (chat_user_id,chat_group_id,chat_chat_id)
 	);
+
+insert into chat_user values (NULL,'punsa');
+insert into chat_user values (NULL,'tamtam');
+insert into chat_user values (NULL,'ongeiei');
+insert into chat_user values (NULL,'gungun');
+insert into chat_user values (NULL,'zizizi');
+insert into chat_group values (NULL,'g1');

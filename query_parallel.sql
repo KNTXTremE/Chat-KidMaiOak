@@ -1,11 +1,4 @@
 use parallel;
-insert into chat_user values (NULL,'punsa');
-insert into chat_user values (NULL,'tamtam');
-insert into chat_user values (NULL,'ongeiei');
-insert into chat_user values (NULL,'gungun');
-insert into chat_user values (NULL,'zizizi');
-insert into chat_group values (NULL,'CP43');
-
 
 INSERT INTO chat_group(group_id) VALUES (?); INSERT INTO join_group(user_name, group_id) VALUES (?, ?);
 
