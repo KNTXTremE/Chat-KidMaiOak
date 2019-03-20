@@ -6,7 +6,7 @@ var port = 8080;
 var mysql = require("mysql");
 
 config = require('./config.js');
-var connection = mysql.createConnection({
+var connectionPool = mysql.createPool({
   host: "localhost",
   user: config.database.user,
   password: config.database.password,
@@ -15,7 +15,7 @@ var connection = mysql.createConnection({
   dateStrings: true
 });
 
-connection.connect();
+// connection.connect();
 
 
 app.get('/', function (req, res) {
@@ -32,7 +32,7 @@ io.on('connection', function (socket) {
     //TODO: check user,password with data base
     name = user.name;
     author = true;
-    console.log('user: ' + name + ' has disconnected.');
+    console.log('user: ' + name + ' has connected.');
     socket.emit('group list', groups);
   });
   socket.on('create group', function (group) {
@@ -46,7 +46,8 @@ io.on('connection', function (socket) {
         // TODO: save to data base
         
         try{
-          let result = query('INSERT INTO chat_group(group_name) VALUES(?);', group);
+          let result = query('INSERT INTO chat_group(group_name) VALUES(?);', group, '', 0);
+          console.log(result)
           // console.log(result)
         } catch (e){
           console.log(e);
@@ -57,13 +58,14 @@ io.on('connection', function (socket) {
   });
   socket.on('join group', function (group) {
     if (author) {
-      if (groups.indexOf(group) >= 0) {
+      if (groups.indexOf(group.group_name) >= 0) {
         // if group in groups
-        socket.join(group)
-        console.log('user : ' + name + ' join group ,' + group)
+        socket.join(group.group_name)
+        console.log('user : ' + name + ' join group ,' + group.group_name)
         // TODO: save to data base
+        console.log(group.group_name)
         try{
-          let result = query('INSERT INTO join_group(join_user_id,join_group_id,is_exist,latest_time_read) VALUES (?,?,1,NULL);', [group.user_id, group.group_id]);
+          let result = query('INSERT INTO join_group(join_user_id,join_group_id,is_exist,latest_time_read) VALUES (?,?,1,current_timestamp());', [group.user_id, group.group_id], '', 0);
         } catch (e){
           console.log(e);
         }
@@ -82,7 +84,7 @@ io.on('connection', function (socket) {
       try{
         let result = query('SELECT join_group.join_user_id FROM join_group JOIN chat_user WHERE join_group.join_user_id = chat_user.user_id AND chat_user.user_name=?; \
         SELECT join_group.join_group_id FROM join_group JOIN chat_group WHERE join_group.join_group_id = chat_group.group_id AND chat_group.group_name=?; \
-        DELETE FROM join_group WHERE join_user_id=? AND join_group_id=?;', [group.user_name, group.group_name, group.user_id, group.group_id]);
+        DELETE FROM join_group WHERE join_user_id=? AND join_group_id=?;', [group.user_name, group.group_name, group.user_id, group.group_id], 'left group list', 1);
       } catch (e){
         console.log(e);
       }
@@ -90,11 +92,11 @@ io.on('connection', function (socket) {
   });
   socket.on('exit group', function (group) {
     try{
-      let result = query('SELECT join_group.join_user_id FROM join_group JOIN chat_user WHERE join_group.join_user_id = chat_user.user_id AND chat_user.user_name=?; \
-      SELECT join_group.join_group_id FROM join_group JOIN chat_group WHERE join_group.join_group_id = chat_group.group_id AND chat_group.group_name=?; \
-      UPDATE join_group SET is_exist=0,latest_time_read=current_timestamp() WHERE join_user_id=? AND join_group_id=?;', [group.user_name, group.group_name, group.user_id, group.group_id]);
-  
-      // console.log('exit group')
+      let result = query('SELECT join_group.join_user_id FROM join_group JOIN chat_user WHERE join_group.join_user_id = chat_user.user_id AND chat_user.user_name=?;\
+      SELECT join_group.join_group_id FROM join_group JOIN chat_group WHERE join_group.join_group_id = chat_group.group_id AND chat_group.group_name=?;\
+      UPDATE join_group SET is_exist=0,latest_time_read=current_timestamp() WHERE join_user_id=? AND join_group_id=?;', [group.user_name, group.group_name, parseInt(group.user_id), group.group_id], 'exit group list', 1);
+      console.log(group)
+      console.log('user : ' + group.user_name + ' exit group')
       // console.log(group)
     } catch(e){
       console.log(e);
@@ -109,7 +111,7 @@ io.on('connection', function (socket) {
       FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
       WHERE chat_log.time_sent >= (SELECT latest_time_read \
       FROM join_group \
-      WHERE join_user_id=? AND join_group_id=?);', [group.user_id, group.group_id]);
+      WHERE join_user_id=? AND join_group_id=?);', [group.user_id, group.group_id], 'unexit group list', 1);
   
       // socket.emit('unexit group', [{ 'username': username, 'message': msg, 'timestamp': chatTimestamp }]);
       socket.emit('chat message', result);
@@ -142,13 +144,28 @@ http.listen(port, function () {
   console.log('listening on *:' + port);
 });
 
-function query(sql, params) {
-  connection.query(
-    sql, params, (error, result) => {
-      if (error) throw error;
+function query(sql, params, event, isEmitBack) {
+  connectionPool.getConnection(function(err, connection) {
+    connection.query( 'START TRANSACTION', function(err, rows) {
+      // do all sql statements with connection and then
 
-      //let all = JSON.parse(JSON.stringify(result));
-      console.log(result);
-    }
-  );
+      connection.query(
+        sql, params, (error, result) => {
+          if (error) throw error;
+          if(isEmitBack){
+            socket.emit(event, result);
+          }
+          //let all = JSON.parse(JSON.stringify(result));
+          console.log(result);
+        }
+      );
+
+      connection.query( 'COMMIT', function(err, rows) {
+         connection.release();
+      });       
+    });
+  });
+
+
+  
 }
