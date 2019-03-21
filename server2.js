@@ -146,28 +146,12 @@ io.on('connection', function (socket) {
   });
   socket.on('unexit group', function (group) {
     if (author) {
-      // connection.query('select is_exist from join_group where join_user_id = (Select user_id from chat_user where user_name = ?) and join_group_id = (select group_id from chat_group where group_name = ?)', [name, group], function (err, row) {
-      //   if (JSON.parse(JSON.stringify(row)).is_exist === 1) {
-      //     //reload chat after server is down and reconnected
-      //     //means that when server is down, is_exist still 1 but the truth is it already crashed. So it needs to be reload chat.
-      //     console.log('reloading chat')
-      //     connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
-      //     FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
-      //     WHERE chat.chat_group_id = (select group_id from chat_group where group_name = ?) ORDER by chat_log.time_sent', group, function (err, row) {
-      //       chat = JSON.parse(JSON.stringify(row))
-      //       for (i = 0; i < chat.length; i++) {
-      //         socket.emit('get unread chat', chat[i]);
-      //         console.log(chat[i]);
-      //       }
-      //     })
-      //   } else {
-
-      //   }
       console.log('user : ' + name + ' read unread message in group ' + group)
       socket.join(group)
-      connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
-    FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
-    WHERE chat_log.time_sent >= (SELECT latest_time_read FROM join_group WHERE join_user_id=(Select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?)) ORDER by chat_log.time_sent;', [name, group], function (err, row) {
+      connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message\
+      FROM ((chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id) JOIN join_group ON (join_group.join_group_id = chat.chat_group_id AND chat_user.user_id = join_group.join_user_id)\
+      WHERE chat.chat_group_id = (select group_id from chat_group where group_name = ?) AND chat_log.time_sent >= (SELECT latest_time_read FROM join_group\
+      WHERE join_user_id=(select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?));', [group, name, group], function (err, row) {
         chat = JSON.parse(JSON.stringify(row))
         for (i = 0; i < chat.length; i++) {
           socket.emit('get unread chat', chat[i]);
@@ -183,7 +167,7 @@ io.on('connection', function (socket) {
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
       connection.query('select time_sent from chat_log ORDER BY chat_id DESC LIMIT 1', function(err,row){
-        io.to(msg.group).emit('chat message', { user_name: name, time_sent: JSON.parse(JSON.stringify(row)).time_sent, message: msg.text });
+        io.to(msg.group).emit('chat message', { user_name: name, time_sent: JSON.parse(JSON.stringify(row))[0].time_sent, message: msg.text });
       })
     }
   });
