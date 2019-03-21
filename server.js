@@ -8,8 +8,8 @@ var mysql = require("mysql");
 config = require('./config.js');
 var connection = mysql.createConnection({
   host: "localhost",
-  user: 'root',
-  password: '0818382079',
+  user: config.database.user,
+  password: config.database.password,
   database: "parallel",
   port: "3306",
   dateStrings: true
@@ -184,10 +184,15 @@ io.on('connection', function (socket) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
       //TODO: check with database if user join msg.group 
       //TODO: edit emit -> {name:name,msg:msg.txt}
-      io.to(msg.group).emit('chat message', { user_name: name, timestamp: Math.floor(Date.now() / 1000), message: msg.text });
-      //TODO: save message to data base
+
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
+      connection.query('select time_sent from chat_log ORDER BY chat_id DESC LIMIT 1', function(err,row){
+        io.to(msg.group).emit('chat message', { user_name: name, time_sent: JSON.parse(JSON.stringify(row)).time_sent, message: msg.text });
+      })
+      
+      //TODO: save message to data base
+      
       //TODO: update last message time to database
     }
   });
