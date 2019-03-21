@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { ChatService } from '../chat.service';
 
 export interface MessageChat {
   message: string;
@@ -15,42 +16,43 @@ export interface MessageChat {
 export class ChatComponent implements OnInit {
 
   @Input() groupName: string;
-  isJoined: boolean;
   message: string;
   messageChat: MessageChat[];
 
 
   constructor(
     private socket: Socket,
+    private chat: ChatService,
   ) { }
 
   ngOnInit() {
-    if (this.groupName == null) {
-      this.isJoined = false;
-    }
-    this.messageChat = [ { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.24pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
-    { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'}];
+    // this.messageChat = [ { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.24pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
+    // { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'}];
+  }
+
+  get isJoined(): boolean {
+    return this.chat.isJoinedVal;
   }
 
   joinGroup() {
-    this.isJoined = true;
     this.socket.emit('join group', this.groupName);
-
   }
 
   leaveGroup() {
-    this.isJoined = false;
+    this.socket.emit('leave group', this.groupName);
   }
 
   sentMessage() {
+    const messageSent = { text: this.message, group: this.groupName };
+    this.socket.emit('chat message', messageSent);
     this.message = '';
   }
 }

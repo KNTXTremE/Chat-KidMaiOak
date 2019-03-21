@@ -2,6 +2,8 @@
   <div class="user">Username: {{username}}</div>
 </div>
 <div class="container">
+    <!-- <app-nav-bar class="navbar" (groupName)="letChat($event)" (isJoined)="isJoin($event)"></app-nav-bar>
+    <app-chat class="chat" [groupName]="groupName" [isJoined]="isJoined"></app-chat> -->
     <app-nav-bar class="navbar" (groupName)="letChat($event)"></app-nav-bar>
     <app-chat class="chat" [groupName]="groupName"></app-chat>
   </div>

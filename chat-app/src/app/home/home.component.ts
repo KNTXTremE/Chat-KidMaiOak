@@ -11,6 +11,7 @@ export class HomeComponent implements OnInit {
 
   username: string;
   groupName: string;
+  isJoined: boolean;
 
   constructor(
     private chat: ChatService,
@@ -27,6 +28,12 @@ export class HomeComponent implements OnInit {
 
   letChat(event: string) {
     this.groupName = event;
+    console.log('group name', this.groupName);
+  }
+
+  isJoin(event: boolean) {
+    this.isJoined = event;
+    console.log('is joined', this.isJoined);
   }
 
   signOut(): void {

@@ -42,6 +42,13 @@ io.on('connection', function (socket) {
         connection.query('insert into chat_user(user_name) values (?);', username);
         console.log('user: ' + username + ' has registered.');
       }
+      connection.query('SELECT group_name,is_exist FROM chat_group,join_group,chat_user WHERE join_group_id = group_id and join_user_id = user_id AND user_name = ?;', username,function(err,row){
+        for(let i=0;i<row.length;i++){
+          if(row[i].is_exist === '1'){
+            socket.join(row[i].group_name);
+          }
+        }
+      })
       name = username;
       console.log('user: ' + name + ' has connected.');
       socket.emit('group list', groups);
@@ -60,6 +67,24 @@ io.on('connection', function (socket) {
       }
     }
   });
+    socket.on('is join group', function (group) {
+    if (author) {
+      console.log('is join group ?')
+      if (groups.indexOf(group) >= 0) {
+        // if group in groups
+        connection.query('select * from join_group,chat_group,chat_user where join_user_id = user_id and group_id = join_group_id and group_name = ? and user_name = ?;', [group, name], function (err, row) {
+          if (row.length === 0) {
+            socket.emit('is join',false);
+            console.log('not join')
+          }
+          else {
+            socket.emit('is join',true);
+            console.log('already join')
+          }
+        })
+      }
+    }
+  });
   socket.on('join group', function (group) {
     if (author) {
       if (groups.indexOf(group) >= 0) {
@@ -68,11 +93,9 @@ io.on('connection', function (socket) {
           if (row.length === 0) {
             connection.query('INSERT INTO join_group(join_user_id,join_group_id,is_exist,latest_time_read) VALUES ((SELECT user_id from chat_user where user_name = ?),(SELECT group_id from chat_group where group_name = ?),1,current_timestamp());', [name, group], function (err, row) {
               socket.join(group)
+              socket.emit('is join',true);
               console.log('user : ' + name + ' join group ,' + group)
             })
-          }
-          else {
-            console.log('already join')
           }
         })
       }
@@ -85,10 +108,12 @@ io.on('connection', function (socket) {
         connection.query('select * from join_group,chat_group,chat_user where join_user_id = user_id and group_id = join_group_id and group_name = ? and user_name = ?;', [group, name], function (err, row) {
           if (row.length === 0) {
             console.log('not already join')
+            socket.emit('is join',false);
           }
           else {
             connection.query('DELETE FROM join_group WHERE join_user_id=(SELECT user_id from chat_user where user_name = ?) AND join_group_id=(SELECT group_id from chat_group where group_name = ?);', [name, group], function (err, row) {
               socket.leave(group)
+              socket.emit('is join',false);
               console.log('user : ' + name + ' leave group ' + group)
             })
           }
@@ -130,7 +155,7 @@ io.on('connection', function (socket) {
           }
         })
     }
-  })
+  });
   socket.on('chat message', function (msg) {
     if (author) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');

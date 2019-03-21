@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateGroupComponent } from '../create-group/create-group.component';
 import { ChatService } from '../chat.service';
+import { Socket } from 'ngx-socket-io';
 
 export interface DialogData {
   name: string;
@@ -22,11 +23,13 @@ export class NavBarComponent implements OnInit {
   constructor(
     private dialog: MatDialog,
     private chat: ChatService,
+    private socket: Socket,
   ) {}
 
 
   ngOnInit() {
     this.groupList = this.getGroupList();
+    this.groupName.emit('');
   }
 
   getGroupList(): Array<String> {
@@ -34,6 +37,13 @@ export class NavBarComponent implements OnInit {
   }
 
   letChat(group: string): void {
+    // if () {
+    //   this.socket.emit('exit group', this.groupName);
+    // }
+    this.socket.emit('is join group', group);
+    if (this.chat.isJoinedVal) {
+      this.socket.emit('unexit group', group);
+    }
     this.groupName.emit(group);
   }
 

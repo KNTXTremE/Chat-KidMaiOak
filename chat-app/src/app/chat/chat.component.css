@@ -69,6 +69,7 @@
 input {
   width: 90%;
   padding: 0px 8px;
+  font-size: 14px;
 }
 .sent {
   background-color: #EB9E55;
