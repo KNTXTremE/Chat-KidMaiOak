@@ -60,8 +60,8 @@
       socket.emit('login', name)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
-        if (num % 2 == 0) socket.emit('chat message', { text: $('#m').val(), group: 'g1' });
-        if (num % 2 == 1) socket.emit('chat message', { text: $('#m').val(), group: 'g2' });
+        if (num % 2 == 1) socket.emit('chat message', { text: $('#m').val(), group: 'g1' });
+        if (num % 2 == 0) socket.emit('chat message', { text: $('#m').val(), group: 'g2' });
         // num++;
         $('#b').html('Send to g' + (num % 2 + 1));
         $('#m').val('');

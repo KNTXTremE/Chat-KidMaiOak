@@ -36,9 +36,9 @@ io.on('connection', function (socket) {
   console.log('connection');
   socket.on('login', function (username) {
     console.log(username)
-    connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[username],function(err,row){
+    connection.query('SELECT * FROM chat_user WHERE user_name = ?;', [username], function (err, row) {
       console.log(row)
-      if(row.length == 0){
+      if (row.length == 0) {
         connection.query('insert into chat_user(user_name) values (?);', username);
         console.log('user: ' + username + ' has registered.');
       }
@@ -143,17 +143,35 @@ io.on('connection', function (socket) {
   });
   socket.on('unexit group', function (group) {
     if (author) {
-      console.log('user : ' + name + ' read unread message in group ' + group)
-      socket.join(group)
-      connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
+      connection.query('select is_exist from join_group where join_user_id = (Select user_id from chat_user where user_name = ?) and join_group_id = (select group_id from chat_group where group_name = ?)', [name, group], function (err, row) {
+        if (JSON.parse(JSON.stringify(row)).is_exist === 1) {
+          //reload chat after server is down and reconnected
+          //means that when server is down, is_exist still 1 but the truth is it already crashed. So it needs to be reload chat.
+          console.log('reloading chat')
+          connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
+          FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
+          WHERE chat.chat_group_id = (select group_id from chat_group where group_name = ?)', group, function (err, row) {
+              chat = JSON.parse(JSON.stringify(row))
+              for (i = 0; i < chat.length; i++) {
+                socket.emit('get unread chat', chat[i]);
+                console.log(chat[i]);
+              }
+            })
+        }
+        else {
+          console.log('user : ' + name + ' read unread message in group ' + group)
+          socket.join(group)
+          connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
       FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
       WHERE chat_log.time_sent >= (SELECT latest_time_read FROM join_group WHERE join_user_id=(Select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?));', [name, group], function (err, row) {
-          chat = JSON.parse(JSON.stringify(row))
-          for (i = 0; i < chat.length; i++) {
-            socket.emit('get unread chat', chat[i]);
-            console.log(chat[i]);
-          }
-        })
+              chat = JSON.parse(JSON.stringify(row))
+              for (i = 0; i < chat.length; i++) {
+                socket.emit('get unread chat', chat[i]);
+                console.log(chat[i]);
+              }
+            })
+        }
+      })
     }
   });
   socket.on('chat message', function (msg) {
@@ -161,7 +179,7 @@ io.on('connection', function (socket) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
       //TODO: check with database if user join msg.group 
       //TODO: edit emit -> {name:name,msg:msg.txt}
-      io.to(msg.group).emit('chat message', name + ' : ' + msg.text);
+      io.to(msg.group).emit('chat message', { name: name, timestamp: Math.floor(Date.now() / 1000), message: msg.text });
       //TODO: save message to data base
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
