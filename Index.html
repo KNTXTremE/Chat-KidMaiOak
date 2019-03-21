@@ -57,8 +57,7 @@
       var num = 0;
       var socket = io();
       let name = prompt("Please enter your name:", "punsa");
-      user = { name: name, password: '1234567890' }
-      socket.emit('login', user)
+      socket.emit('login', name)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
         if (num % 2 == 0) socket.emit('chat message', { text: $('#m').val(), group: 'g1' });
