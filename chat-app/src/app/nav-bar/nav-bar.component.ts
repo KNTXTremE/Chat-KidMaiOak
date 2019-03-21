@@ -18,18 +18,30 @@ export class NavBarComponent implements OnInit {
   groupList: Array<String> = [];
   @Output() groupName = new EventEmitter<string>();
   name: string;
+  selectedName: string;
 
 
   constructor(
     private dialog: MatDialog,
     private chat: ChatService,
     private socket: Socket,
-  ) {}
-
+  ) {
+    this.setupObservable();
+  }
 
   ngOnInit() {
     this.groupList = this.getGroupList();
     this.groupName.emit('');
+    this.selectedName = '';
+  }
+
+  setupObservable(): void {
+    this.chat.isJoinObservable.subscribe(msg => {
+      if (this.chat.isJoinedVal) {
+        this.socket.emit('unexit group', this.selectedName);
+        console.log('unexit', this.selectedName);
+      }
+    });
   }
 
   getGroupList(): Array<String> {
@@ -37,13 +49,13 @@ export class NavBarComponent implements OnInit {
   }
 
   letChat(group: string): void {
-    // if () {
-    //   this.socket.emit('exit group', this.groupName);
-    // }
-    this.socket.emit('is join group', group);
-    if (this.chat.isJoinedVal) {
-      this.socket.emit('unexit group', group);
+    if (this.selectedName !== '') {
+      console.log('exit group', this.selectedName);
+      this.chat.clearMessageChats();
+      this.socket.emit('exit group', this.selectedName);
     }
+    this.selectedName = group;
+    this.socket.emit('is join group', group);
     this.groupName.emit(group);
   }
 

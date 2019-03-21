@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { MessageChat } from './message-chat';
 
 @Injectable({
   providedIn: 'root'
@@ -9,10 +10,11 @@ export class ChatService {
   private user: string;
   private group: string[] = [];
   private isJoined: boolean;
-  private message: string;
+  public messageChats: MessageChat[] = [];
+  public isJoinObservable = this.socket.fromEvent<boolean>('is join');
 
   constructor(
-     private socket: Socket,
+    private socket: Socket,
   ) {
     this.socket.on('group list', msg => {
       console.log('socket: group list', msg);
@@ -26,25 +28,26 @@ export class ChatService {
       console.log('socket: is join', msg);
       this.isJoined = msg;
     });
-    this.socket.on('chat message', msg => {
+    this.socket.fromEvent<MessageChat>('chat message').subscribe(msg => {
       console.log('socket: chat message', msg);
-      this.message = msg;
+      this.messageChats = this.messageChats.concat(msg);
     });
-    this.socket.on('get unread chat', msg => {
+    this.socket.fromEvent<MessageChat>('get unread chat').subscribe(msg => {
       console.log('socket: get unread chat', msg);
-      this.message = msg;
+      this.messageChats = this.messageChats.concat(msg);
     });
   }
+
+  clearMessageChats(): void {
+    this.messageChats = [];
+  }
+
   setUser(user: string): void {
     this.user = user;
   }
 
   getUser(): string {
     return this.user;
-  }
-
-  get messageVal(): string {
-    return this.message;
   }
 
   get isJoinedVal(): boolean {
