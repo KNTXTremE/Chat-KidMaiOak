@@ -1,0 +1,11 @@
+use parallel;
+insert chat_user(user_id,user_name) values(default,'Punnisa');
+insert chat_user(user_id,user_name) values(default,'Chayakarn');
+insert chat_user(user_id,user_name) values(default,'Ittiwat');
+insert chat_user(user_id,user_name) values(default,'Chalermwat');
+insert chat_user(user_id,user_name) values(default,'Kridtin');
+insert chat_user(user_id,user_name) values(default,'A');
+insert chat_group(group_id,group_name) values(default,'CP43');
+select * from chat_user;
+select * from chat_group;
+#drop table chat_user;

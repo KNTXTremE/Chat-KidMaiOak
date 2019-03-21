@@ -1,6 +1,6 @@
 module.exports = {
     database : {
         user : "root",
-        password : "root"
+        password : "KanT330330"
     }
 }
