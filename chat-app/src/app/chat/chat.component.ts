@@ -1,12 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { ChatService } from '../chat.service';
+import { MessageChat } from '../message-chat';
 
-export interface MessageChat {
-  message: string;
-  user: string;
-  time: string;
-}
 
 @Component({
   selector: 'app-chat',
@@ -17,29 +13,22 @@ export class ChatComponent implements OnInit {
 
   @Input() groupName: string;
   message: string;
-  messageChat: MessageChat[];
 
 
   constructor(
     private socket: Socket,
-    private chat: ChatService,
+    public chat: ChatService,
   ) { }
 
   ngOnInit() {
-    // this.messageChat = [ { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.24pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'tamtam', 'time': '2.25pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'ktpunnisa', 'time': '2.26pm'},
-    // { 'message': 'hello world !! chat now !', 'user': 'ongeiei', 'time': '2.29pm'}];
   }
 
   get isJoined(): boolean {
     return this.chat.isJoinedVal;
+  }
+
+  get messageChat(): MessageChat[] {
+    return this.chat.messageChats;
   }
 
   joinGroup() {

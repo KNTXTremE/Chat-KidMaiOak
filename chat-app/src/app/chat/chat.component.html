@@ -13,11 +13,11 @@
     </div>
     <div *ngIf="isJoined">
       <cdk-virtual-scroll-viewport itemSize="50" class="example-viewport">
-        <div *cdkVirtualFor="let message of messageChat" class="example-item">
+        <div *cdkVirtualFor="let message of chat.messageChats" class="example-item">
             <div class="chat">
-                <span class="username">{{message.user}}</span>
+                <span class="username">{{message.user_name}}</span>
                 <div class="messageChat">{{message.message}}</div>
-                <span class="time">{{message.time}} </span>
+                <span class="time">{{message.time_sent}} </span>
               </div>
         </div>
       </cdk-virtual-scroll-viewport>
