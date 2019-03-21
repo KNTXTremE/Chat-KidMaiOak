@@ -15,7 +15,9 @@ var connection = mysql.createConnection({
   dateStrings: true
 });
 
-// connection.connect();
+connection.connect((err)=>{
+  if(err) throw(err);
+});
 
 
 app.get('/', function (req, res) {
@@ -34,6 +36,9 @@ io.on('connection', function (socket) {
   var name;
   var author = false;
   console.log('connection');
+  socket.emit('requestName',()=>{
+    console.log("requestName")
+  })
   socket.on('login', function (username) {
     console.log(username)
     connection.query('SELECT * FROM chat_user WHERE user_name = ?;', [username], function (err, row) {
@@ -86,7 +91,7 @@ io.on('connection', function (socket) {
   });
   socket.on('join group', function (group) {
     if (author) {
-      if (groups.indexOf(group) >= 0) {
+      if (groups.indexOf(group[0]) >= 0) {
         // if group in groups
         connection.query('select * from join_group,chat_group,chat_user where join_user_id = user_id and group_id = join_group_id and group_name = ? and user_name = ?;', [group, name], function (err, row) {
           if (row.length === 0) {
@@ -175,14 +180,14 @@ io.on('connection', function (socket) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
       //TODO: check with database if user join msg.group 
       //TODO: edit emit -> {name:name,msg:msg.txt}
-      io.to(msg.group).emit('chat message', {
-        user_name: name,
-        timestamp: Math.floor(Date.now() / 1000),
-        message: msg.text
-      });
-      //TODO: save message to data base
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
+      connection.query('select time_sent from chat_log ORDER BY chat_id DESC LIMIT 1', function(err,row){
+        io.to(msg.group).emit('chat message', { user_name: name, time_sent: JSON.parse(JSON.stringify(row)).time_sent, message: msg.text });
+      })
+      
+      //TODO: save message to data base
+      
       //TODO: update last message time to database
     }
   });
