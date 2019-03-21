@@ -7,7 +7,7 @@ var mysql = require("mysql");
 
 config = require('./config.js');
 var connection = mysql.createConnection({
-  host: "192.168.43.39",
+  host: "localhost",
   user: config.database.user,
   password: config.database.password,
   database: "parallel",
