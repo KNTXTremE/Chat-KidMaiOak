@@ -150,7 +150,7 @@ io.on('connection', function (socket) {
           console.log('reloading chat')
           connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
           FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
-          WHERE chat.chat_group_id = (select group_id from chat_group where group_name = ?)', group, function (err, row) {
+          WHERE chat.chat_group_id = (select group_id from chat_group where group_name = ?) ORDER by chat_log.time_sent', group, function (err, row) {
               chat = JSON.parse(JSON.stringify(row))
               for (i = 0; i < chat.length; i++) {
                 socket.emit('get unread chat', chat[i]);
@@ -163,7 +163,7 @@ io.on('connection', function (socket) {
           socket.join(group)
           connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message \
       FROM (chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id \
-      WHERE chat_log.time_sent >= (SELECT latest_time_read FROM join_group WHERE join_user_id=(Select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?));', [name, group], function (err, row) {
+      WHERE chat_log.time_sent >= (SELECT latest_time_read FROM join_group WHERE join_user_id=(Select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?)) ORDER by chat_log.time_sent;', [name, group], function (err, row) {
               chat = JSON.parse(JSON.stringify(row))
               for (i = 0; i < chat.length; i++) {
                 socket.emit('get unread chat', chat[i]);
@@ -179,7 +179,7 @@ io.on('connection', function (socket) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
       //TODO: check with database if user join msg.group 
       //TODO: edit emit -> {name:name,msg:msg.txt}
-      io.to(msg.group).emit('chat message', { name: name, timestamp: Math.floor(Date.now() / 1000), message: msg.text });
+      io.to(msg.group).emit('chat message', { user_name: name, timestamp: Math.floor(Date.now() / 1000), message: msg.text });
       //TODO: save message to data base
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
