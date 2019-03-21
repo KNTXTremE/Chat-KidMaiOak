@@ -8,8 +8,8 @@ var mysql = require("mysql");
 config = require('./config.js');
 var connection = mysql.createConnection({
   host: "localhost",
-  user: config.database.user,
-  password: config.database.password,
+  user: 'root',
+  password: '0818382079',
   database: "parallel",
   port: "3306",
   dateStrings: true

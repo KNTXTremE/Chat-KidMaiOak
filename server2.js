@@ -142,7 +142,7 @@ io.on('connection', function (socket) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
       //TODO: check with database if user join msg.group 
       //TODO: edit emit -> {name:name,msg:msg.txt}
-      io.to(msg.group).emit('chat message', name + ' : ' + msg.text);
+      io.to(msg.group).emit('chat message',  { user_name: name, timestamp: Math.floor(Date.now() / 1000), message: msg.text });
       //TODO: save message to data base
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
