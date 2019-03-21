@@ -53,10 +53,13 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script>
+      
     $(function () {
       var num = 0;
-      var socket = io();
+      var socket = io('ws://localhost');
       let name = prompt("Please enter your name:", "punsa");
+      var group = [];
+
       socket.emit('login', name)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
@@ -74,7 +77,8 @@
       });
       $('#joing1').submit(function (e) {
         e.preventDefault();
-        socket.emit('join group', 'g1');
+        group.push('g1');
+        socket.emit('join group', group);
       });
       $('#joing2').submit(function (e) {
         e.preventDefault();
@@ -90,6 +94,10 @@
       });
       $('#exitGroup').submit(function (e) {
         e.preventDefault();
+        var index = array.indexOf('g1');
+        if (index > -1) {
+          array.splice(index, 1);
+        }
         socket.emit('exit group', 'g1');
       });
       $('#unexitGroup').submit(function (e) {
@@ -120,6 +128,10 @@
       socket.on('unexit group list', function (data) {
         console.log(data)
       });
+      socket.on('requestName',()=>{
+        socket.emit('login', name)
+        socket.emit('join group', group)
+      })
     });
   </script>
 </head>

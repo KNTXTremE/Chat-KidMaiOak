@@ -8,14 +8,16 @@ var mysql = require("mysql");
 config = require('./config.js');
 var connection = mysql.createConnection({
   host: "localhost",
-  user: config.database.user,
-  password: config.database.password,
+  user: 'root',
+  password: '0818382079',
   database: "parallel",
   port: "3306",
   dateStrings: true
 });
 
-// connection.connect();
+connection.connect((err)=>{
+  if(err) throw(err);
+});
 
 
 app.get('/', function (req, res) {
@@ -34,6 +36,9 @@ io.on('connection', function (socket) {
   var name;
   var author = false;
   console.log('connection');
+  socket.emit('requestName',()=>{
+    console.log("requestName")
+  })
   socket.on('login', function (username) {
     console.log(username)
     connection.query('SELECT * FROM chat_user WHERE user_name = ?;',[username],function(err,row){
@@ -62,7 +67,7 @@ io.on('connection', function (socket) {
   });
   socket.on('join group', function (group) {
     if (author) {
-      if (groups.indexOf(group) >= 0) {
+      if (groups.indexOf(group[0]) >= 0) {
         // if group in groups
         connection.query('select * from join_group,chat_group,chat_user where join_user_id = user_id and group_id = join_group_id and group_name = ? and user_name = ?;', [group, name], function (err, row) {
           if (row.length === 0) {
@@ -72,6 +77,7 @@ io.on('connection', function (socket) {
             })
           }
           else {
+            socket.join(group)
             console.log('already join')
           }
         })
