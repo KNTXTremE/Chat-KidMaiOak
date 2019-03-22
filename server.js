@@ -21,7 +21,8 @@ connection.connect((err)=>{
 
 
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
+  //res.sendFile(__dirname + '/index.html');
+  res.redirect('http://localhost:4200')
 });
 
 groups = []
@@ -37,9 +38,6 @@ io.on('connection', function (socket) {
   var name;
   var author = false;
   console.log('connection');
-  socket.emit('requestName',()=>{
-    console.log("requestName")
-  })
   socket.on('login', function (username) {
     console.log(username)
     connection.query('SELECT * FROM chat_user WHERE user_name = ?;', [username], function (err, row) {
@@ -163,7 +161,6 @@ io.on('connection', function (socket) {
   socket.on('chat message', function (msg) {
     if (author) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
-      //TODO: check with database if user join msg.group 
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
       connection.query('select time_sent from chat_log ORDER BY chat_id DESC LIMIT 1', function(err,row){

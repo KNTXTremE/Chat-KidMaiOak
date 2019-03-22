@@ -56,15 +56,15 @@
       
     $(function () {
       var num = 0;
-      var socket = io('ws://localhost');
+      var socket = io();
       let name = prompt("Please enter your name:", "punsa");
       var group = [];
 
       socket.emit('login', name)
       $('#msg').submit(function (e) {
         e.preventDefault(); // prevents page reloading
-        if (num % 2 == 0) socket.emit('chat message', { text: $('#m').val(), group: 'g1' });
-        if (num % 2 == 1) socket.emit('chat message', { text: $('#m').val(), group: 'g2' });
+        socket.emit('chat message', { text: $('#m').val(), group: 'g1' });
+        // if (num % 2 == 1) socket.emit('chat message', { text: $('#m').val(), group: 'g2' });
         // num++;
         $('#b').html('Send to g' + (num % 2 + 1));
         $('#m').val('');
@@ -118,15 +118,6 @@
         for (let i = 0; i < groups.length; i++) {
           $('#glist').append($('<li>').text(groups[i]))
         }
-      });
-      socket.on('left group list', function (data) {
-        console.log(data)
-      });
-      socket.on('exit group list', function (data) {
-        console.log(data)
-      });
-      socket.on('unexit group list', function (data) {
-        console.log(data)
       });
       socket.on('requestName',()=>{
         socket.emit('login', name)

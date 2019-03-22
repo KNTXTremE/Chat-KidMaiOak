@@ -15,7 +15,7 @@ import { HomeComponent } from './home/home.component';
 import { CreateGroupComponent } from './create-group/create-group.component';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
-const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
+const config: SocketIoConfig = { url: 'http://<<YOUR_IP_ADDRESS>>:5555', options: {} };
 
 @NgModule({
   declarations: [

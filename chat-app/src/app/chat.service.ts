@@ -16,6 +16,10 @@ export class ChatService {
   constructor(
     private socket: Socket,
   ) {
+    this.socket.on('requestName',()=>{
+      console.log(this.user)
+      socket.emit('login', this.user);
+    })
     this.socket.on('group list', msg => {
       console.log('socket: group list', msg);
       this.group.push(...msg);

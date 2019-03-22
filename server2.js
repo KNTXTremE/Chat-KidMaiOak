@@ -57,7 +57,7 @@ io.on('connection', function (socket) {
       })
       name = username;
       console.log('user: ' + name + ' has connected.');
-      socket.emit('group list', groups);
+      //socket.emit('group list', groups);
       author = true;
     })
   });
@@ -163,7 +163,6 @@ io.on('connection', function (socket) {
   socket.on('chat message', function (msg) {
     if (author) {
       console.log('message from ' + name + ' : ' + msg.text + '  -- (' + msg.group + ')');
-      //TODO: check with database if user join msg.group 
       connection.query('INSERT INTO chat_log(time_sent,message) VALUES(current_timestamp(),?);', msg.text);
       connection.query('INSERT INTO chat(chat_user_id,chat_group_id,chat_chat_id) VALUES((Select user_id from chat_user where user_name = ?),(select group_id from chat_group where group_name = ?),(SELECT chat_id FROM chat_log ORDER BY chat_id DESC LIMIT 1));', [name, msg.group]);
       connection.query('select time_sent from chat_log ORDER BY chat_id DESC LIMIT 1', function(err,row){

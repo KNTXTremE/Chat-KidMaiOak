@@ -1,4 +1,11 @@
 use parallel;
+insert into chat_user values (NULL,'punsa');
+insert into chat_user values (NULL,'tamtam');
+insert into chat_user values (NULL,'ongeiei');
+insert into chat_user values (NULL,'gungun');
+insert into chat_user values (NULL,'zizizi');
+insert into chat_group values (NULL,'g1');
+insert into chat_group values (NULL,'g2');
 insert chat_user(user_id,user_name) values(default,'Punnisa');
 insert chat_user(user_id,user_name) values(default,'Chayakarn');
 insert chat_user(user_id,user_name) values(default,'Ittiwat');

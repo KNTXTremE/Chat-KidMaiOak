@@ -32,11 +32,3 @@ create table chat(
     sequence_number int,
     primary key (chat_user_id,chat_group_id,chat_chat_id)
 	);
-
-insert into chat_user values (NULL,'punsa');
-insert into chat_user values (NULL,'tamtam');
-insert into chat_user values (NULL,'ongeiei');
-insert into chat_user values (NULL,'gungun');
-insert into chat_user values (NULL,'zizizi');
-insert into chat_group values (NULL,'g1');
-insert into chat_group values (NULL,'g2');
