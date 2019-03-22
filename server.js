@@ -151,7 +151,7 @@ io.on('connection', function (socket) {
       connection.query('SELECT chat_user.user_name,chat_log.time_sent,chat_log.message\
       FROM ((chat_user JOIN chat ON chat_user.user_id = chat.chat_user_id) JOIN chat_log ON chat_log.chat_id = chat.chat_chat_id) JOIN join_group ON (join_group.join_group_id = chat.chat_group_id AND chat_user.user_id = join_group.join_user_id)\
       WHERE chat.chat_group_id = (select group_id from chat_group where group_name = ?) AND chat_log.time_sent >= (SELECT latest_time_read FROM join_group\
-      WHERE join_user_id=(select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?));', [group, name, group], function (err, row) {
+      WHERE join_user_id=(select user_id from chat_user where user_name = ?) AND join_group_id=(select group_id from chat_group where group_name = ?)) ORDER by chat_log.time_sent;', [group, name, group], function (err, row) {
         chat = JSON.parse(JSON.stringify(row))
         for (i = 0; i < chat.length; i++) {
           socket.emit('get unread chat', chat[i]);
